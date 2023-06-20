@@ -9,10 +9,6 @@ networks:
     driver: bridge
   t2_proxy:
     name: t2_proxy
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.90.0/24
   socket_proxy:
     name: socket_proxy
     driver: bridge
@@ -48,9 +44,7 @@ services:
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
-      t2_proxy:
-        ipv4_address: 192.168.0.42 # You can specify a static IP
-      socket_proxy:
+      - t2_proxy
     command: # CLI arguments
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
