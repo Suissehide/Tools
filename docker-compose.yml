@@ -7,8 +7,6 @@ version: "3.9"
 networks:
   default:
     driver: bridge
-  proxy:
-    external: true
   t2_proxy:
     name: t2_proxy
     driver: bridge
@@ -49,6 +47,10 @@ services:
     image: traefik:3.0
     restart: unless-stopped
     profiles: [ "core", "all" ]
+    networks:
+      t2_proxy:
+        ipv4_address: 192.168.90.254 # You can specify a static IP
+      socket_proxy:
     command: # CLI arguments
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
@@ -121,6 +123,10 @@ services:
       - TZ=$TZ
       - HTPASSWD_FILE=/run/secrets/htpasswd # HTPASSWD_FILE can be whatever as it is not used/called anywhere.
       - DOMAINNAME # Passing the domain name to traefik container to be able to use the variable in rules.
+      - OVH_ENDPOINT=$OVH_ENDPOINT
+      - OVH_APPLICATION_KEY=$OVH_APPLICATION_KEY
+      - OVH_APPLICATION_SECRET=$OVH_APPLICATION_SECRET
+      - OVH_CONSUMER_KEY=OVH_CONSUMER_KEY
     secrets:
       - htpasswd
     labels:
@@ -158,6 +164,9 @@ services:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
     profiles: [ "core", "all" ]
+    networks:
+      - t2_proxy
+      - socket_proxy
     command: -H unix:///var/run/docker.sock # # Use Docker Socket Proxy instead for improved security
     # command: -H tcp://socket-proxy:2375
     ports:
