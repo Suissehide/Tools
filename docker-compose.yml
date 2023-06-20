@@ -5,14 +5,16 @@ version: "3.9"
 # You can copy-paste services from one docker-compose file in this repo to another to add other apps.
 
 networks:
+  default:
+    driver: bridge
+  proxy:
+    external: true
   t2_proxy:
     name: t2_proxy
     driver: bridge
     ipam:
       config:
         - subnet: 192.168.90.0/24
-  default:
-    driver: bridge
   socket_proxy:
     name: socket_proxy
     driver: bridge
@@ -48,9 +50,7 @@ services:
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
-      t2_proxy:
-        ipv4_address: 192.168.90.254 # You can specify a static IP
-      socket_proxy:
+      - proxy
     command: # CLI arguments
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
@@ -162,8 +162,7 @@ services:
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
-      - t2_proxy
-      - socket_proxy
+      - proxy
     command: -H unix:///var/run/docker.sock # # Use Docker Socket Proxy instead for improved security
     # command: -H tcp://socket-proxy:2375
     ports:
