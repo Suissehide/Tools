@@ -122,9 +122,8 @@ services:
       #   protocol: tcp
       #   mode: host
     volumes:
-      - $DOCKERDIR/appdata/traefik2/rules/cloudserver:/rules # file provider directory
+      - $DOCKERDIR/letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
-      - $DOCKERDIR/appdata/traefik2/acme/acme.json:/acme.json # cert location - you must create this emtpy file and change permissions to 600
       - $DOCKERDIR/logs/cloudserver/traefik:/logs # for fail2ban or crowdsec
     environment:
       - TZ=$TZ
