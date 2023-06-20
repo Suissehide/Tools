@@ -40,16 +40,11 @@ services:
   ############################# FRONTENDS
 
   # Traefik 2 - Reverse Proxy
-  # Touch (create empty files) traefik.log and acme/acme.json. Set acme.json permissions to 600.
-  # touch $DOCKERDIR/appdata/traefik2/acme/acme.json
-  # chmod 600 $DOCKERDIR/appdata/traefik2/acme/acme.json
+  # Touch (create empty files) traefik.log.
   # touch $DOCKERDIR/logs/cloudserver/traefik.log
-  # touch $DOCKERDIR/logs/cloudserver/access.log
   traefik:
     container_name: traefik
     image: traefik:3.0
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
@@ -164,8 +159,6 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:latest
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
@@ -195,8 +188,6 @@ services:
   autoindex:
     container_name: autoindex
     image: dceoy/nginx-autoindex:latest
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
@@ -221,8 +212,6 @@ services:
   homepage:
     image: ghcr.io/benphelps/homepage:latest
     container_name: homepage
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
@@ -254,8 +243,6 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
@@ -284,8 +271,6 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: ["apps", "all"]
     networks:
@@ -313,8 +298,6 @@ services:
   guacamole:
     image: guacamole/guacamole:latest
     container_name: guacamole
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: ["apps", "all"]
     networks:
@@ -349,8 +332,6 @@ services:
   guacd:
     image: guacamole/guacd
     container_name: guacd
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: ["apps", "all"]
 
@@ -361,8 +342,6 @@ services:
   dockergc:
     image: clockworksoul/docker-gc-cron:latest
     container_name: docker-gc
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
@@ -384,8 +363,6 @@ services:
   whoami:
     image: traefik/whoami
     container_name: whoami
-    security_opt:
-      - no-new-privileges:true
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
