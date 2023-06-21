@@ -131,9 +131,10 @@ services:
       #   protocol: tcp
       #   mode: host
     volumes:
+      - $DOCKERDIR/appdata/traefik2/rules:/rules
       - $DOCKERDIR/letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
-      - $DOCKERDIR/logs/cloudserver/traefik:/logs # for fail2ban or crowdsec
+      - $DOCKERDIR/logs/traefik:/logs # for fail2ban or crowdsec
     environment:
       TZ: $TZ
       HTPASSWD_FILE: /run/secrets/htpasswd # HTPASSWD_FILE can be whatever as it is not used/called anywhere.
