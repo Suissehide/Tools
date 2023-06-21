@@ -197,7 +197,7 @@ services:
       - "traefik.http.routers.portainer-rtr.entrypoints=https"
       - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
       ## Middlewares
-      # - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
       - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
@@ -420,7 +420,7 @@ services:
       - "traefik.http.routers.whoami-rtr.entrypoints=https"
       - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.$DOMAIN_NAME`)"
       ## Middlewares
-      # - "traefik.http.routers.whoami-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.routers.whoami-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
       - "traefik.http.routers.whoami-rtr.service=whoami-svc"
       - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
