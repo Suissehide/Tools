@@ -7,8 +7,8 @@ version: "3.9"
 networks:
   default:
     driver: bridge
-  t2_proxy:
-    name: t2_proxy
+  traefik-net:
+    name: traefik-net
   socket_proxy:
     name: socket_proxy
     driver: bridge
@@ -44,7 +44,7 @@ x-environment: &default-tz-puid-pgid
 # Keys common to some of the services in basic-services.txt
 x-common-keys-core: &common-keys-core
   networks:
-    - t2_proxy
+    - traefik-net
   # security_opt:
     # - no-new-privileges:true
   restart: always
@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
     command: # CLI arguments
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
@@ -100,7 +100,7 @@ services:
       - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
       # - --entrypoints.https.http.tls.domains[1].main=$DOMAIN_NAME2 # Pulls main cert for second domain
       # - --entrypoints.https.http.tls.domains[1].sans=*.$DOMAIN_NAME2 # Pulls wildcard cert for second domain
-      - --providers.docker.network=t2_proxy
+      - --providers.docker.network=traefik-net
       - --providers.docker.swarmMode=false
       - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory
       # - --providers.file.filename=/path/to/file # Load dynamic configuration from a file
@@ -109,7 +109,6 @@ services:
       - --certificatesResolvers.ovh.acme.dnsChallenge=true
       - --certificatesResolvers.ovh.acme.dnsChallenge.provider=ovh
       - --certificatesResolvers.ovh.acme.email=$OVH_EMAIL
-      - --certificatesResolvers.ovh.acme.storage=/acme.json
       - --certificatesResolvers.ovh.acme.storage=/letsencrypt/acme.json
       # - --metrics.prometheus=true
       # - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
@@ -131,10 +130,10 @@ services:
       #   protocol: tcp
       #   mode: host
     volumes:
-      - $DOCKERDIR/appdata/traefik2/rules:/rules
+      - $DOCKERDIR/appdata/traefik/rules:/rules
       - $DOCKERDIR/letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
       - $DOCKERDIR/logs/traefik:/logs # for fail2ban or crowdsec
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
     environment:
       TZ: $TZ
       HTPASSWD_FILE: /run/secrets/htpasswd # HTPASSWD_FILE can be whatever as it is not used/called anywhere.
@@ -146,7 +145,7 @@ services:
     secrets:
       - htpasswd
     labels:
-      #- "autoheal=true"
+      # - "autoheal=true"
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
       - "traefik.http.routers.http-catchall.entrypoints=http"
@@ -181,7 +180,7 @@ services:
     restart: unless-stopped
     profiles: [ "core", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
       - socket_proxy
     command: -H unix:///var/run/docker.sock # # Use Docker Socket Proxy instead for improved security
     # command: -H tcp://socket-proxy:2375
@@ -198,7 +197,7 @@ services:
       - "traefik.http.routers.portainer-rtr.entrypoints=https"
       - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
       ## Middlewares
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file"
+      # - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
       - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
@@ -210,7 +209,7 @@ services:
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
     # ports:
     #   - "$AUTOINDEX_PORT:80"
     volumes:
@@ -234,7 +233,7 @@ services:
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
       - socket_proxy
     # ports:
     #  - "$HOMEPAGE_PORT:3000"
@@ -294,7 +293,7 @@ services:
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
     environment:
       - PMA_HOST=$MARIADB_HOST
       - PMA_PORT=$MARIADB_PORT
@@ -322,7 +321,7 @@ services:
     restart: unless-stopped
     profiles: ["apps", "all"]
     networks:
-      - t2_proxy
+      - traefik-net
     ports:
       - "3000:3000"
     user: $PUID
@@ -349,7 +348,7 @@ services:
     restart: unless-stopped
     profiles: ["apps", "all"]
     networks:
-      - t2_proxy
+      - traefik-net
       - default
     ports:
       - "8083:8080"
@@ -414,7 +413,7 @@ services:
     restart: unless-stopped
     profiles: [ "apps", "all" ]
     networks:
-      - t2_proxy
+      - traefik-net
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
@@ -448,24 +447,24 @@ services:
       - "traefik.enable=true"
       ## HTTP Routers SHB (WordPress) Auth
       # - "traefik.http.routers.nginx-shb-auth-rtr.entrypoints=https"
-      # - "traefik.http.routers.nginx-shb-auth-rtr.rule=Host(`www.$DOMAINNAME_SHB`) && Path(`/wp-login.php`)"
+      # - "traefik.http.routers.nginx-shb-auth-rtr.rule=Host(`www.$DOMAIN_NAME`) && Path(`/wp-login.php`)"
       # - "traefik.http.routers.nginx-shb-auth-rtr.priority=100"
       ## HTTP Routers SHB (WordPress) Bypass
       # - "traefik.http.routers.nginx-shb-rtr.entrypoints=https"
-      # - "traefik.http.routers.nginx-shb-rtr.rule=Host(`$DOMAINNAME_SHB`) || Host(`www.$DOMAINNAME_SHB`)"
+      # - "traefik.http.routers.nginx-shb-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       # - "traefik.http.routers.nginx-shb-rtr.priority=99"
       ## HTTP Routers SHB Beta (WordPress)
       #- "traefik.http.routers.nginx-shb-beta-rtr.entrypoints=https"
-      #- "traefik.http.routers.nginx-shb-beta-rtr.rule=Host(`beta.$DOMAINNAME_SHB`)"
+      #- "traefik.http.routers.nginx-shb-beta-rtr.rule=Host(`beta.$DOMAIN_NAME`)"
       ## HTTP Routers DASH (non-WordPress)
       # - "traefik.http.routers.nginx-dash-rtr.entrypoints=https"
-      # - "traefik.http.routers.nginx-dash-rtr.rule=Host(`dash.$DOMAINNAME_SHB`)"
+      # - "traefik.http.routers.nginx-dash-rtr.rule=Host(`dash.$DOMAIN_NAME`)"
       ## HTTP Routers KHUB (non-WordPress)
       # - "traefik.http.routers.nginx-khub-rtr.entrypoints=https"
       # - "traefik.http.routers.nginx-khub-rtr.rule=Host(`$DOMAINNAME_KHUB`) || Host(`www.$DOMAINNAME_KHUB`)"
       # Redirect shb non-www to www middleware
-      # - "traefik.http.middlewares.shb-redirect.redirectregex.regex=^https?://$DOMAINNAME_SHB/(.*)"
-      # - "traefik.http.middlewares.shb-redirect.redirectregex.replacement=https://www.$DOMAINNAME_SHB/$${1}"
+      # - "traefik.http.middlewares.shb-redirect.redirectregex.regex=^https?://$DOMAIN_NAME/(.*)"
+      # - "traefik.http.middlewares.shb-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME/$${1}"
       # - "traefik.http.middlewares.shb-redirect.redirectregex.permanent=true"
       ## Middlewares
       # - "traefik.http.routers.nginx-shb-rtr.middlewares=shb-redirect,chain-no-auth-wp@file"
