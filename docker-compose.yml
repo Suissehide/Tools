@@ -31,8 +31,7 @@ x-environment: &default-tz-puid-pgid
 
 # Keys common to some of the services in basic-services.txt
 x-common-keys-core: &common-keys-core
-  networks:
-    - traefik-net
+  network_mode: bridge
   # security_opt:
     # - no-new-privileges:true
   restart: always
