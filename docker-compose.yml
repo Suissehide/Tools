@@ -4,18 +4,6 @@ version: "3.9"
 # This is my main docker-compose file with most of the apps. I run docker on other systems with smaller stacks (web and synology).
 # You can copy-paste services from one docker-compose file in this repo to another to add other apps.
 
-networks:
-  default:
-    driver: bridge
-  traefik-net:
-    name: traefik-net
-  socket_proxy:
-    name: socket_proxy
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.91.0/24
-
 ########################### SECRETS
 secrets:
   htpasswd:
@@ -63,8 +51,7 @@ services:
     image: traefik:3.0
     restart: unless-stopped
     profiles: [ "core", "all" ]
-    networks:
-      - traefik-net
+    network_mode: bridge
     command: # CLI arguments
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
@@ -179,9 +166,7 @@ services:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
     profiles: [ "core", "all" ]
-    networks:
-      - traefik-net
-      - socket_proxy
+    network_mode: bridge
     command: -H unix:///var/run/docker.sock # # Use Docker Socket Proxy instead for improved security
     # command: -H tcp://socket-proxy:2375
     ports:
@@ -208,8 +193,7 @@ services:
     image: dceoy/nginx-autoindex:latest
     restart: unless-stopped
     profiles: [ "apps", "all" ]
-    networks:
-      - traefik-net
+    network_mode: bridge
     # ports:
     #   - "$AUTOINDEX_PORT:80"
     volumes:
@@ -232,9 +216,7 @@ services:
     container_name: homepage
     restart: unless-stopped
     profiles: [ "apps", "all" ]
-    networks:
-      - traefik-net
-      - socket_proxy
+    network_mode: bridge
     # ports:
     #  - "$HOMEPAGE_PORT:3000"
     volumes:
@@ -292,8 +274,7 @@ services:
     container_name: phpmyadmin
     restart: unless-stopped
     profiles: [ "apps", "all" ]
-    networks:
-      - traefik-net
+    network_mode: bridge
     environment:
       - PMA_HOST=$MARIADB_HOST
       - PMA_PORT=$MARIADB_PORT
@@ -320,8 +301,7 @@ services:
     container_name: grafana
     restart: unless-stopped
     profiles: ["apps", "all"]
-    networks:
-      - traefik-net
+    network_mode: bridge
     ports:
       - "3000:3000"
     user: $PUID
@@ -347,8 +327,7 @@ services:
     container_name: guacamole
     restart: unless-stopped
     profiles: ["apps", "all"]
-    networks:
-      - traefik-net
+    network_mode: bridge
       - default
     ports:
       - "8083:8080"
@@ -391,8 +370,7 @@ services:
     container_name: docker-gc
     restart: unless-stopped
     profiles: [ "apps", "all" ]
-    networks:
-      - socket_proxy
+    network_mode: bridge
     volumes:
       # - /var/run/docker.sock:/var/run/docker.sock # Use Docker Socket Proxy instead for improved security
       - $DOCKERDIR/appdata/docker-gc/docker-gc-exclude:/etc/docker-gc-exclude
@@ -412,8 +390,7 @@ services:
     container_name: whoami
     restart: unless-stopped
     profiles: [ "apps", "all" ]
-    networks:
-      - traefik-net
+    network_mode: bridge
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
