@@ -10,6 +10,8 @@ secrets:
     file: $DOCKERDIR/secrets/htpasswd
   traefik_forward_auth:
     file: $DOCKERDIR/secrets/traefik_forward_auth
+  portainer_key:
+    file: $DOCKERDIR/secrets/portainer_key
   mysql_root_password:
     file: $DOCKERDIR/secrets/mysql_root_password
   guac_db_name:
@@ -88,7 +90,7 @@ services:
       # - --entrypoints.https.http.tls.domains[1].main=$DOMAIN_NAME2 # Pulls main cert for second domain
       # - --entrypoints.https.http.tls.domains[1].sans=*.$DOMAIN_NAME2 # Pulls wildcard cert for second domain
       - --providers.docker.network=traefik-net
-      - --providers.docker.swarmMode=false
+      # - --providers.docker.swarmMode=false
       - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory
       # - --providers.file.filename=/path/to/file # Load dynamic configuration from a file
       - --providers.file.watch=true # Only works on top level files in the rules folder
@@ -174,6 +176,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro # # Use Docker Socket Proxy instead for improved security
       - $DOCKERDIR/appdata/portainer/data:/data # Change to local directory if you want to save/transfer config locally
+      - $DOCKERDIR/secrets/portainer_key:/run/secrets/portainer
     environment:
       - TZ=$TZ
     labels:

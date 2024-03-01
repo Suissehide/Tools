@@ -6,7 +6,6 @@ http:
           - middlewares-rate-limit
           - middlewares-https-redirectscheme
           - middlewares-secure-headers
-          - middlewares-compress
 
     chain-no-auth-wp:
       chain:
