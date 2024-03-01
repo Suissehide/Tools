@@ -318,7 +318,7 @@ services:
     volumes:
       - $DOCKERDIR/jellyfin:/config
       - /dev/shm:/ram_transcode
-      - /media:/nas
+      - $USERDIR/media:/nas
     #   - /media:/nas:ro # Run in ro mode while upgrading JF
     labels:
       - "traefik.enable=true"
@@ -435,7 +435,7 @@ services:
       # - "traefik.http.routers.nginx-dash-rtr.rule=Host(`dash.$DOMAIN_NAME`)"
       ## HTTP Routers KHUB (non-WordPress)
       # - "traefik.http.routers.nginx-khub-rtr.entrypoints=https"
-      # - "traefik.http.routers.nginx-khub-rtr.rule=Host(`$DOMAINNAME_KHUB`) || Host(`www.$DOMAINNAME_KHUB`)"
+      # - "traefik.http.routers.nginx-khub-rtr.rule=Host(`$DOMAIN_NAME_KHUB`) || Host(`www.$DOMAIN_NAME_KHUB`)"
       # Redirect shb non-www to www middleware
       # - "traefik.http.middlewares.shb-redirect.redirectregex.regex=^https?://$DOMAIN_NAME/(.*)"
       # - "traefik.http.middlewares.shb-redirect.redirectregex.replacement=https://www.$DOMAIN_NAME/$${1}"
