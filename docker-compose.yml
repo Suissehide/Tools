@@ -437,6 +437,7 @@ services:
   transmission-openvpn-proxy:
     image: haugene/transmission-openvpn-proxy
     container_name: transmission-openvpn-proxy
+    network_mode: bridge
     links:
       - 'transmission-openvpn:transmission'
     ports:
