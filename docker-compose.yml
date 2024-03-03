@@ -386,11 +386,12 @@ services:
       - 1.0.0.1
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - $DOCKERDIR/transmission-vpn/protonvpn:/etc/openvpn/custom/
       - $DOCKERDIR/transmission-vpn/data:/data
       - $DOCKERDIR/transmission-vpn/config:/config
       - $USERDIR/Downloads:/downloads
     environment:
-      OPENVPN_PROVIDER: CUSTOM
+      OPENVPN_PROVIDER: custom
       OPENVPN_USERNAME: $PROTONVPN_USERNAME
       OPENVPN_PASSWORD: $PROTONVPN_PASSWORD
       OPENVPN_CONFIG: $PROTONVPN_CONFIG
@@ -419,6 +420,10 @@ services:
       TRANSMISSION_WATCH_DIR: /downloads
       TRANSMISSION_WATCH_DIR_ENABLED: "true"
       TRANSMISSION_DOWNLOAD_DIR: /downloads/completed
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
