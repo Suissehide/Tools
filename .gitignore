@@ -1,6 +1,4 @@
-# IDE custom settings
-/.idea/
-/.vscode/
+.idea/
+node_modules/
 
-# Local environment
-/.env.local
+.env.local

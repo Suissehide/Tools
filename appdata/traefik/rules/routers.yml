@@ -1,0 +1,11 @@
+http:
+  routers:
+    traefik:
+      rule: Host(`traefik.docker.localhost`)
+      entryPoints:
+        - https
+      service: api@internal
+      middlewares:
+        - middlewares-basic-auth
+        - middlewares-secure-headers
+      tls: {}
