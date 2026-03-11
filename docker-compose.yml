@@ -84,11 +84,7 @@ services:
       - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
       # - --entrypoints.https.http.tls.domains[1].main=$DOMAIN_NAME2 # Pulls main cert for second domain
       # - --entrypoints.https.http.tls.domains[1].sans=*.$DOMAIN_NAME2 # Pulls wildcard cert for second domain
-      # - --certificatesResolvers.ovh.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
-      - --certificatesResolvers.ovh.acme.dnsChallenge=true
-      - --certificatesResolvers.ovh.acme.dnsChallenge.provider=ovh
-      - --certificatesResolvers.ovh.acme.email=$OVH_EMAIL
-      - --certificatesResolvers.ovh.acme.storage=/letsencrypt/acme.json
+      # certificatesResolvers config moved to traefik.yml
       # - --metrics.prometheus=true
       # - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
     healthcheck:
