@@ -222,6 +222,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.portainer-rtr.entrypoints=https"
       - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
+      - "traefik.http.routers.portainer-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
@@ -252,6 +253,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.dokploy-rtr.entrypoints=https"
       - "traefik.http.routers.dokploy-rtr.rule=Host(`dokploy.$DOMAIN_NAME`)"
+      - "traefik.http.routers.dokploy-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.dokploy-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
@@ -296,6 +298,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.autoindex-rtr.entrypoints=https"
       - "traefik.http.routers.autoindex-rtr.rule=Host(`index.$DOMAIN_NAME`)"
+      - "traefik.http.routers.autoindex-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.autoindex-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -323,6 +326,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.homepage-rtr.entrypoints=https"
       - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`,`www.$DOMAIN_NAME`)"
+      - "traefik.http.routers.homepage-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.homepage-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -383,6 +387,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.phpmyadmin-rtr.entrypoints=https"
       - "traefik.http.routers.phpmyadmin-rtr.rule=Host(`pma.$DOMAIN_NAME`)"
+      - "traefik.http.routers.phpmyadmin-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.phpmyadmin-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -420,6 +425,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.jellyfin-rtr.entrypoints=https"
       - "traefik.http.routers.jellyfin-rtr.rule=Host(`jellyfin.$DOMAIN_NAME`)"
+      - "traefik.http.routers.jellyfin-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.jellyfin-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
@@ -448,6 +454,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.grafana-rtr.entrypoints=https"
       - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.$DOMAIN_NAME`)"
+      - "traefik.http.routers.grafana-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.grafana-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
@@ -567,6 +574,7 @@ services:
       ## HTTP Routers
       - "traefik.http.routers.whoami-rtr.entrypoints=https"
       - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.$DOMAIN_NAME`)"
+      - "traefik.http.routers.whoami-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.whoami-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
