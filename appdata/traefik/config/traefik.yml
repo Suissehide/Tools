@@ -30,7 +30,7 @@ entryPoints:
     address: ":443"
 
 ping:
-  entryPoint: ping
+  entryPoint: https
 
 providers:
   docker:
