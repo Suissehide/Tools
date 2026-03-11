@@ -92,10 +92,11 @@ services:
       # - --metrics.prometheus=true
       # - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
     healthcheck:
-      test: [ "CMD", "traefik", "healthcheck", "--ping", "--pingEntryPoint=https" ]
-      interval: 5s
-      timeout: 2s
-      retries: 5
+      test: [ "CMD", "traefik", "healthcheck", "--ping", "--pingEntryPoint=ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
     ports:
       - "80:80"
       - "443:443"

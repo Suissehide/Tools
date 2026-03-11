@@ -29,8 +29,11 @@ entryPoints:
   https:
     address: ":443"
 
+  ping:
+    address: ":8082"
+
 ping:
-  entryPoint: https
+  entryPoint: ping
 
 providers:
   docker:
