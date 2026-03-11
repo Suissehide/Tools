@@ -1,11 +1,11 @@
 http:
   routers:
     traefik:
-      rule: Host(`traefik.docker.localhost`)
+      rule: Host(`traefik.{{env "DOMAIN_NAME"}}`)
       entryPoints:
         - https
       service: api@internal
       middlewares:
-        - middlewares-basic-auth
-        - middlewares-secure-headers
-      tls: {}
+        - chain-basic-auth
+      tls:
+        certResolver: ovh

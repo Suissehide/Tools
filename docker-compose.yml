@@ -92,7 +92,7 @@ services:
       # - --metrics.prometheus=true
       # - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
     healthcheck:
-      test: [ "CMD", "traefik", "healthcheck", "--ping", "--pingEntryPoint=ping" ]
+      test: [ "CMD-SHELL", "wget -q -O- http://localhost:8082/ping || exit 1" ]
       interval: 10s
       timeout: 3s
       retries: 3
