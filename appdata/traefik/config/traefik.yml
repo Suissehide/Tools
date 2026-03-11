@@ -36,8 +36,7 @@ providers:
   docker:
     exposedByDefault: false
     watch: true
-    endpoint: unix:///var/run/docker.sock # Use Docker Socket Proxy instead for improved security
-    # endpoint: tcp://socket-proxy:2375
+    endpoint: tcp://socket-proxy:2375
     # Automatically set Host rule for services
     # defaultrule: "Host(`{{ index .Labels \"com.docker.compose.service\" }}.$DOMAIN_NAME`)"
     network: proxy
