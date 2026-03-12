@@ -76,16 +76,16 @@ services:
       - "--configFile=/config/traefik.yml"
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
-      - --entryPoints.http.address=:80
-      - --entryPoints.https.address=:443
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
       # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
-      # - --entrypoints.https.forwardedHeaders.trustedIPs=$LOCAL_IPS
-      # - --entrypoints.https.http.middlewares=chain-basic-auth@file
-      - --entrypoints.https.http.tls.options=tls-opts@file
+      # - --entrypoints.websecure.forwardedHeaders.trustedIPs=$LOCAL_IPS
+      # - --entrypoints.websecure.http.middlewares=chain-basic-auth@file
+      - --entrypoints.websecure.http.tls.options=tls-opts@file
       # Add ovh as default certresolver for all services. Also enables TLS and no need to specify on individual services
-      - --entrypoints.https.http.tls.certresolver=ovh
-      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN_NAME
-      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN_NAME
+      - --entrypoints.websecure.http.tls.certresolver=ovh
+      - --entrypoints.websecure.http.tls.domains[0].main=$DOMAIN_NAME
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.$DOMAIN_NAME
       # - --entrypoints.https.http.tls.domains[1].main=$DOMAIN_NAME2 # Pulls main cert for second domain
       # - --entrypoints.https.http.tls.domains[1].sans=*.$DOMAIN_NAME2 # Pulls wildcard cert for second domain
       # certificatesResolvers config moved to traefik.yml
@@ -120,12 +120,12 @@ services:
       # - "autoheal=true"
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
-      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # HTTP Routers
-      - "traefik.http.routers.traefik-rtr.entrypoints=https"
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
       - "traefik.http.routers.traefik-rtr.tls=true" # Some people had 404s without this
       - "traefik.http.routers.traefik-rtr.tls.certresolver=ovh" # Comment out this line after first run of traefik to force the use of wildcard certs
@@ -224,7 +224,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
+      - "traefik.http.routers.portainer-rtr.entrypoints=websecure"
       - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAIN_NAME`)"
       - "traefik.http.routers.portainer-rtr.tls=true"
       ## Middlewares
@@ -257,7 +257,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.dokploy-rtr.entrypoints=https"
+      - "traefik.http.routers.dokploy-rtr.entrypoints=websecure"
       - "traefik.http.routers.dokploy-rtr.rule=Host(`dokploy.$DOMAIN_NAME`)"
       - "traefik.http.routers.dokploy-rtr.tls=true"
       ## Middlewares
@@ -315,7 +315,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.autoindex-rtr.entrypoints=https"
+      - "traefik.http.routers.autoindex-rtr.entrypoints=websecure"
       - "traefik.http.routers.autoindex-rtr.rule=Host(`index.$DOMAIN_NAME`)"
       - "traefik.http.routers.autoindex-rtr.tls=true"
       ## Middlewares
@@ -343,7 +343,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.homepage-rtr.entrypoints=https"
+      - "traefik.http.routers.homepage-rtr.entrypoints=websecure"
       - "traefik.http.routers.homepage-rtr.rule=Host(`$DOMAIN_NAME`,`www.$DOMAIN_NAME`)"
       - "traefik.http.routers.homepage-rtr.tls=true"
       ## Middlewares
@@ -404,7 +404,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.phpmyadmin-rtr.entrypoints=https"
+      - "traefik.http.routers.phpmyadmin-rtr.entrypoints=websecure"
       - "traefik.http.routers.phpmyadmin-rtr.rule=Host(`pma.$DOMAIN_NAME`)"
       - "traefik.http.routers.phpmyadmin-rtr.tls=true"
       ## Middlewares
@@ -442,7 +442,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.jellyfin-rtr.entrypoints=https"
+      - "traefik.http.routers.jellyfin-rtr.entrypoints=websecure"
       - "traefik.http.routers.jellyfin-rtr.rule=Host(`jellyfin.$DOMAIN_NAME`)"
       - "traefik.http.routers.jellyfin-rtr.tls=true"
       ## Middlewares
@@ -471,7 +471,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.grafana-rtr.entrypoints=https"
+      - "traefik.http.routers.grafana-rtr.entrypoints=websecure"
       - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.$DOMAIN_NAME`)"
       - "traefik.http.routers.grafana-rtr.tls=true"
       ## Middlewares
@@ -548,7 +548,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.transmission-vpn-rtr.entrypoints=https"
+      - "traefik.http.routers.transmission-vpn-rtr.entrypoints=websecure"
       - "traefik.http.routers.transmission-vpn-rtr.rule=Host(`trans.$DOMAIN_NAME`)"
       ## Middlewares
       - "traefik.http.routers.transmission-vpn-rtr.middlewares=middlewares-rate-limit@file"
@@ -591,7 +591,7 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.whoami-rtr.entrypoints=https"
+      - "traefik.http.routers.whoami-rtr.entrypoints=websecure"
       - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.$DOMAIN_NAME`)"
       - "traefik.http.routers.whoami-rtr.tls=true"
       ## Middlewares
@@ -622,21 +622,21 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers SHB (WordPress) Auth
-      # - "traefik.http.routers.nginx-shb-auth-rtr.entrypoints=https"
+      # - "traefik.http.routers.nginx-shb-auth-rtr.entrypoints=websecure"
       # - "traefik.http.routers.nginx-shb-auth-rtr.rule=Host(`www.$DOMAIN_NAME`) && Path(`/wp-login.php`)"
       # - "traefik.http.routers.nginx-shb-auth-rtr.priority=100"
       ## HTTP Routers SHB (WordPress) Bypass
-      # - "traefik.http.routers.nginx-shb-rtr.entrypoints=https"
+      # - "traefik.http.routers.nginx-shb-rtr.entrypoints=websecure"
       # - "traefik.http.routers.nginx-shb-rtr.rule=Host(`$DOMAIN_NAME`) || Host(`www.$DOMAIN_NAME`)"
       # - "traefik.http.routers.nginx-shb-rtr.priority=99"
       ## HTTP Routers SHB Beta (WordPress)
-      #- "traefik.http.routers.nginx-shb-beta-rtr.entrypoints=https"
+      #- "traefik.http.routers.nginx-shb-beta-rtr.entrypoints=websecure"
       #- "traefik.http.routers.nginx-shb-beta-rtr.rule=Host(`beta.$DOMAIN_NAME`)"
       ## HTTP Routers DASH (non-WordPress)
-      # - "traefik.http.routers.nginx-dash-rtr.entrypoints=https"
+      # - "traefik.http.routers.nginx-dash-rtr.entrypoints=websecure"
       # - "traefik.http.routers.nginx-dash-rtr.rule=Host(`dash.$DOMAIN_NAME`)"
       ## HTTP Routers KHUB (non-WordPress)
-      # - "traefik.http.routers.nginx-khub-rtr.entrypoints=https"
+      # - "traefik.http.routers.nginx-khub-rtr.entrypoints=websecure"
       # - "traefik.http.routers.nginx-khub-rtr.rule=Host(`$DOMAIN_NAME_KHUB`) || Host(`www.$DOMAIN_NAME_KHUB`)"
       # Redirect shb non-www to www middleware
       # - "traefik.http.middlewares.shb-redirect.redirectregex.regex=^https?://$DOMAIN_NAME/(.*)"
