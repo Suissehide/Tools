@@ -3,7 +3,7 @@ http:
     traefik:
       rule: Host(`traefik.{{env "DOMAIN_NAME"}}`)
       entryPoints:
-        - https
+        - websecure
       service: api@internal
       middlewares:
         - chain-basic-auth

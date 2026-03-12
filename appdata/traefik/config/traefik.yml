@@ -18,15 +18,15 @@ accessLog:
     statusCodes: "204-299,400-499,500-599"
 
 entryPoints:
-  http:
+  web:
     address: ":80"
     http:
       redirections:
         entryPoint:
-          to: https
+          to: websecure
           scheme: https
 
-  https:
+  websecure:
     address: ":443"
 
   ping:
@@ -59,6 +59,14 @@ certificatesResolvers:
         provider: ovh
         resolvers:
           - "213.186.33.99:53" # OVH DNS resolver
+  letsencrypt: # Alias used by Dokploy — same config as ovh
+    acme:
+      email: ${OVH_EMAIL}
+      storage: /letsencrypt/acme.json
+      dnsChallenge:
+        provider: ovh
+        resolvers:
+          - "213.186.33.99:53"
 
 # metrics:
 #   prometheus:
