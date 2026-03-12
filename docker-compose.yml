@@ -76,8 +76,6 @@ services:
       - "--configFile=/config/traefik.yml"
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
-      - --entryPoints.web.address=:80
-      - --entryPoints.websecure.address=:443
       # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
       # - --entrypoints.websecure.forwardedHeaders.trustedIPs=$LOCAL_IPS
       # - --entrypoints.websecure.http.middlewares=chain-basic-auth@file
