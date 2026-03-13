@@ -432,7 +432,7 @@ services:
       - "traefik.http.routers.cloudbeaver-rtr.rule=Host(`cloudbeaver.$DOMAIN_NAME`)"
       - "traefik.http.routers.cloudbeaver-rtr.tls=true"
       ## Middlewares
-      - "traefik.http.routers.cloudbeaver-rtr.middlewares=chain-oauth@file"
+      - "traefik.http.routers.cloudbeaver-rtr.middlewares=chain-basic-auth@file"
       ## HTTP Services
       - "traefik.http.routers.cloudbeaver-rtr.service=cloudbeaver-svc"
       - "traefik.http.services.cloudbeaver-svc.loadbalancer.server.port=8978"
