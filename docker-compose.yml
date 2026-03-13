@@ -437,6 +437,37 @@ services:
       - "traefik.http.routers.cloudbeaver-rtr.service=cloudbeaver-svc"
       - "traefik.http.services.cloudbeaver-svc.loadbalancer.server.port=8978"
 
+  # CloudBeaver Network Watcher - Auto-connects CloudBeaver to DokPloy app networks
+  cloudbeaver-network-watcher:
+    image: docker:cli
+    container_name: cloudbeaver-network-watcher
+    restart: unless-stopped
+    profiles: [ "db", "all" ]
+    depends_on:
+      - cloudbeaver
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: $TZ
+      TARGET_CONTAINER: cloudbeaver
+      # Réseaux système à ignorer
+      EXCLUDED_NETWORKS: "bridge host none proxy socket_proxy dokploy-network"
+    entrypoint: >
+      sh -c '
+        echo "Connexion aux réseaux existants...";
+        for net in $$(docker network ls --format "{{.Name}}"); do
+          skip=0;
+          for excl in $$EXCLUDED_NETWORKS; do [ "$$net" = "$$excl" ] && skip=1 && break; done;
+          [ $$skip -eq 0 ] && docker network connect "$$net" "$$TARGET_CONTAINER" 2>/dev/null && echo "Connecté: $$net";
+        done;
+        echo "Surveillance des nouveaux réseaux...";
+        docker events --filter "type=network" --filter "event=create" --format "{{.Actor.Attributes.name}}" | while read net; do
+          skip=0;
+          for excl in $$EXCLUDED_NETWORKS; do [ "$$net" = "$$excl" ] && skip=1 && break; done;
+          [ $$skip -eq 0 ] && docker network connect "$$net" "$$TARGET_CONTAINER" 2>/dev/null && echo "Nouveau réseau connecté: $$net";
+        done
+      '
+
   ############################# MEDIA
 
   # Jellyfin - Media Server
