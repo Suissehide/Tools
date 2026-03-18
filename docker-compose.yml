@@ -462,6 +462,7 @@ services:
       - $DOCKERDIR/appdata/cloudbeaver:/opt/cloudbeaver/workspace
     environment:
       TZ: $TZ
+      CLOUDBEAVER_FORCE_HTTPS: "false"
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
