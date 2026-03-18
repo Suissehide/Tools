@@ -8,6 +8,13 @@ http:
           - middlewares-https-redirectscheme
           - middlewares-secure-headers
 
+    chain-no-auth-no-redirect:
+      chain:
+        middlewares:
+          # - middlewares-crowdsec-bouncer # Uncomment when CrowdSec is running
+          - middlewares-rate-limit
+          - middlewares-secure-headers
+
     chain-no-auth-wp:
       chain:
         middlewares:
