@@ -628,6 +628,7 @@ services:
       - no-new-privileges:true
     volumes:
       - $DOCKERDIR/appdata/posthog-clickhouse:/var/lib/clickhouse
+      - $DOCKERDIR/appdata/posthog-clickhouse-config/listen.xml:/etc/clickhouse-server/config.d/listen_ipv4.xml:ro
     ulimits:
       nofile:
         soft: 262144
