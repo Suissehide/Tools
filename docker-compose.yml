@@ -636,7 +636,8 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://localhost:8123/ping" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 60s
 
   # PostHog - Analytics Platform (web)
   posthog:
