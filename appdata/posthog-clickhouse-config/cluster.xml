@@ -22,5 +22,7 @@
         <shard>01</shard>
         <replica>01</replica>
         <cluster>posthog_migrations</cluster>
+        <hostClusterType>standard</hostClusterType>
+        <hostClusterRole>main</hostClusterRole>
     </macros>
 </clickhouse>
