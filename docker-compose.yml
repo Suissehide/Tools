@@ -613,6 +613,7 @@ services:
       TZ: $TZ
       DATABASE_URL: postgresql://umami:$UMAMI_POSTGRES_PASSWORD@umami-postgres:5432/umami
       APP_SECRET: $UMAMI_APP_SECRET
+      CORS_MAX_AGE: 86400
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
