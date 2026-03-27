@@ -681,7 +681,7 @@ services:
       - "traefik.http.routers.posthog-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
       - "traefik.http.routers.posthog-rtr.service=posthog-svc"
-      - "traefik.http.services.posthog-svc.loadbalancer.server.port=80"
+      - "traefik.http.services.posthog-svc.loadbalancer.server.port=8000"
 
   # PostHog Worker - Celery async task worker
   posthog-worker:
