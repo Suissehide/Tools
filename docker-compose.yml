@@ -665,6 +665,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
+      CLICKHOUSE_REPLICATION: "false"
       SITE_URL: https://posthog.$DOMAIN_NAME
       JS_URL: https://posthog.$DOMAIN_NAME
       DISABLE_SECURE_SSL_REDIRECT: "true"
@@ -703,6 +704,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
+      CLICKHOUSE_REPLICATION: "false"
       SITE_URL: https://posthog.$DOMAIN_NAME
 
   # PostHog Plugin Server - Event ingestion & plugin processing
@@ -724,6 +726,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
+      CLICKHOUSE_REPLICATION: "false"
 
   ############################# DOWNLOADERS
 
