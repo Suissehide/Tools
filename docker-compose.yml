@@ -621,7 +621,7 @@ services:
       - "traefik.http.routers.umami-rtr.rule=Host(`umami.$DOMAIN_NAME`)"
       - "traefik.http.routers.umami-rtr.tls=true"
       ## Middlewares
-      - "traefik.http.routers.umami-rtr.middlewares=chain-no-auth-cors@file"
+      - "traefik.http.routers.umami-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
       - "traefik.http.routers.umami-rtr.service=umami-svc"
       - "traefik.http.services.umami-svc.loadbalancer.server.port=3000"
