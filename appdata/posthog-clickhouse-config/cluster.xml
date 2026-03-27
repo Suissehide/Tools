@@ -1,0 +1,26 @@
+<clickhouse>
+    <zookeeper>
+        <node>
+            <host>localhost</host>
+            <port>9181</port>
+        </node>
+    </zookeeper>
+
+    <remote_servers>
+        <posthog_migrations>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>posthog-clickhouse</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </posthog_migrations>
+    </remote_servers>
+
+    <macros>
+        <shard>01</shard>
+        <replica>01</replica>
+        <cluster>posthog_migrations</cluster>
+    </macros>
+</clickhouse>

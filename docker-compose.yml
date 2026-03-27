@@ -629,6 +629,8 @@ services:
     volumes:
       - $DOCKERDIR/appdata/posthog-clickhouse:/var/lib/clickhouse
       - $DOCKERDIR/appdata/posthog-clickhouse-config/listen.xml:/etc/clickhouse-server/config.d/listen_ipv4.xml:ro
+      - $DOCKERDIR/appdata/posthog-clickhouse-config/keeper.xml:/etc/clickhouse-server/config.d/keeper.xml:ro
+      - $DOCKERDIR/appdata/posthog-clickhouse-config/cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro
     ulimits:
       nofile:
         soft: 262144
@@ -665,7 +667,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
-      CLICKHOUSE_REPLICATION: "false"
+      CLICKHOUSE_CLUSTER: posthog_migrations
       SITE_URL: https://posthog.$DOMAIN_NAME
       JS_URL: https://posthog.$DOMAIN_NAME
       DISABLE_SECURE_SSL_REDIRECT: "true"
@@ -704,7 +706,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
-      CLICKHOUSE_REPLICATION: "false"
+      CLICKHOUSE_CLUSTER: posthog_migrations
       SITE_URL: https://posthog.$DOMAIN_NAME
 
   # PostHog Plugin Server - Event ingestion & plugin processing
@@ -726,7 +728,7 @@ services:
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
       CLICKHOUSE_VERIFY: "false"
-      CLICKHOUSE_REPLICATION: "false"
+      CLICKHOUSE_CLUSTER: posthog_migrations
 
   ############################# DOWNLOADERS
 
