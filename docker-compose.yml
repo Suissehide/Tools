@@ -620,13 +620,8 @@ services:
       - "traefik.http.routers.umami-rtr.entrypoints=websecure"
       - "traefik.http.routers.umami-rtr.rule=Host(`umami.$DOMAIN_NAME`)"
       - "traefik.http.routers.umami-rtr.tls=true"
-      ## CORS middleware — allow tracking script from any origin
-      - "traefik.http.middlewares.umami-cors.headers.customResponseHeaders.Access-Control-Allow-Origin=*"
-      - "traefik.http.middlewares.umami-cors.headers.customResponseHeaders.Access-Control-Allow-Methods=GET,POST,OPTIONS"
-      - "traefik.http.middlewares.umami-cors.headers.customResponseHeaders.Access-Control-Allow-Headers=Content-Type"
-      - "traefik.http.middlewares.umami-cors.headers.customResponseHeaders.Access-Control-Max-Age=86400"
       ## Middlewares
-      - "traefik.http.routers.umami-rtr.middlewares=chain-no-auth@file,umami-cors"
+      - "traefik.http.routers.umami-rtr.middlewares=chain-no-auth@file,middlewares-cors-public@file"
       ## HTTP Services
       - "traefik.http.routers.umami-rtr.service=umami-svc"
       - "traefik.http.services.umami-svc.loadbalancer.server.port=3000"
