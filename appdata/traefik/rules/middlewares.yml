@@ -66,20 +66,3 @@ http:
     middlewares-compress:
       compress: {}
 
-    middlewares-secure-headers-cors:
-      headers:
-        addVaryHeader: true
-        stsSeconds: 63072000
-        stsIncludeSubdomains: true
-        stsPreload: true
-        forceSTSHeader: true
-        contentTypeNosniff: true
-        browserXssFilter: true
-        referrerPolicy: "same-origin"
-        customResponseHeaders:
-          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
-          server: ""
-          Access-Control-Allow-Origin: "*"
-          Access-Control-Allow-Methods: "GET,POST,OPTIONS"
-          Access-Control-Allow-Headers: "Content-Type"
-          Access-Control-Max-Age: "86400"
