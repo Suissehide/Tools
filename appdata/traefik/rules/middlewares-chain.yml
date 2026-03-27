@@ -24,6 +24,14 @@ http:
           - middlewares-secure-headers-wp
           - middlewares-compress
 
+    chain-no-auth-cors:
+      chain:
+        middlewares:
+          # - middlewares-crowdsec-bouncer # Uncomment when CrowdSec is running
+          - middlewares-rate-limit
+          - middlewares-https-redirectscheme
+          - middlewares-secure-headers-cors
+
     chain-basic-auth:
       chain:
         middlewares:
