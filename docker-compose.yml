@@ -626,6 +626,75 @@ services:
       - "traefik.http.routers.umami-rtr.service=umami-svc"
       - "traefik.http.services.umami-svc.loadbalancer.server.port=3000"
 
+  ############################# DOCUMENTATION
+
+  # Docmost Postgres - Database for Docmost
+  docmost-postgres:
+    image: postgres:16-alpine
+    container_name: docmost-postgres
+    restart: unless-stopped
+    profiles: [ "apps", "all" ]
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKERDIR/appdata/docmost-postgres:/var/lib/postgresql/data
+    environment:
+      TZ: $TZ
+      POSTGRES_USER: docmost
+      POSTGRES_PASSWORD: $DOCMOST_POSTGRES_PASSWORD
+      POSTGRES_DB: docmost
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U docmost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Docmost - Open-source collaborative wiki and documentation
+  docmost:
+    image: docmost/docmost:latest
+    container_name: docmost
+    restart: unless-stopped
+    profiles: [ "apps", "all" ]
+    networks:
+      - proxy
+    depends_on:
+      docmost-postgres:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: $TZ
+      APP_URL: https://docs.$DOMAIN_NAME
+      APP_SECRET: $DOCMOST_APP_SECRET
+      DATABASE_URL: postgresql://docmost:$DOCMOST_POSTGRES_PASSWORD@docmost-postgres:5432/docmost
+      REDIS_URL: redis://docmost-redis:6379
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.docmost-rtr.entrypoints=websecure"
+      - "traefik.http.routers.docmost-rtr.rule=Host(`docs.$DOMAIN_NAME`)"
+      - "traefik.http.routers.docmost-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.docmost-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.docmost-rtr.service=docmost-svc"
+      - "traefik.http.services.docmost-svc.loadbalancer.server.port=3000"
+
+  # Docmost Redis - Cache for Docmost
+  docmost-redis:
+    image: redis:7-alpine
+    container_name: docmost-redis
+    restart: unless-stopped
+    profiles: [ "apps", "all" ]
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKERDIR/appdata/docmost-redis:/data
+
   ############################# DOWNLOADERS
 
   # TransmissionBT - Torrent Downloader
