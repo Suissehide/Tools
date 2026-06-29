@@ -723,7 +723,10 @@ services:
       - "traefik.http.routers.couchdb-rtr.rule=Host(`livesync.$DOMAIN_NAME`)"
       - "traefik.http.routers.couchdb-rtr.tls=true"
       ## Middlewares
-      - "traefik.http.routers.couchdb-rtr.middlewares=chain-no-auth@file"
+      # No chain-no-auth here: its secure-headers middleware (addVaryHeader: true)
+      # makes Traefik v3 intercept OPTIONS preflight and break CouchDB's own CORS.
+      # CouchDB is an API, the browser-targeted headers (frameDeny, XSS, STS) don't apply.
+      - "traefik.http.routers.couchdb-rtr.middlewares=middlewares-rate-limit@file"
       ## HTTP Services
       - "traefik.http.routers.couchdb-rtr.service=couchdb-svc"
       - "traefik.http.services.couchdb-svc.loadbalancer.server.port=5984"
