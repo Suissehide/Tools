@@ -695,6 +695,39 @@ services:
     volumes:
       - $DOCKERDIR/appdata/docmost-redis:/data
 
+  ############################# SYNC
+
+  # CouchDB - Backend for Obsidian Self-hosted LiveSync
+  # First run: create a DB at https://livesync.$DOMAIN_NAME/_utils (login with COUCHDB_USER/COUCHDB_PASSWORD)
+  # Then in Obsidian install the "Self-hosted LiveSync" plugin and point it to this URL + DB name
+  couchdb:
+    image: couchdb:3
+    container_name: couchdb
+    restart: unless-stopped
+    profiles: [ "apps", "all" ]
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKERDIR/appdata/couchdb/data:/opt/couchdb/data
+      - $DOCKERDIR/appdata/couchdb/config/local.ini:/opt/couchdb/etc/local.d/local.ini
+    environment:
+      TZ: $TZ
+      COUCHDB_USER: $COUCHDB_USER
+      COUCHDB_PASSWORD: $COUCHDB_PASSWORD
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.couchdb-rtr.entrypoints=websecure"
+      - "traefik.http.routers.couchdb-rtr.rule=Host(`livesync.$DOMAIN_NAME`)"
+      - "traefik.http.routers.couchdb-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.couchdb-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.couchdb-rtr.service=couchdb-svc"
+      - "traefik.http.services.couchdb-svc.loadbalancer.server.port=5984"
+
   ############################# DOWNLOADERS
 
   # TransmissionBT - Torrent Downloader
