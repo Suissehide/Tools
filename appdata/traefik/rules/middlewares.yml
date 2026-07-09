@@ -77,20 +77,6 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
           server: ""
-        accessControlAllowOriginList:
-          - "*"
-        accessControlAllowHeaders:
-          - "Content-Type"
-          - "Authorization"
-          - "Accept"
-          - "X-Requested-With"
-        accessControlAllowMethods:
-          - "GET"
-          - "POST"
-          - "PUT"
-          - "DELETE"
-          - "OPTIONS"
-        accessControlMaxAge: 86400
 
     middlewares-compress:
       compress: {}
