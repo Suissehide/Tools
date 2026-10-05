@@ -258,7 +258,7 @@ services:
       - "traefik.http.routers.dokploy-rtr.rule=Host(`dokploy.$DOMAIN_NAME`)"
       - "traefik.http.routers.dokploy-rtr.tls=true"
       ## Middlewares
-      - "traefik.http.routers.dokploy-rtr.middlewares=chain-basic-auth@file"
+      - "traefik.http.routers.dokploy-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
       - "traefik.http.routers.dokploy-rtr.service=dokploy-svc"
       - "traefik.http.services.dokploy-svc.loadbalancer.server.port=3000"
