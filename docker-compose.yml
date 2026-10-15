@@ -626,6 +626,72 @@ services:
       - "traefik.http.routers.umami-rtr.service=umami-svc"
       - "traefik.http.services.umami-svc.loadbalancer.server.port=3000"
 
+  ############################# MONITORING
+
+  # GlitchTip Postgres - Database for GlitchTip
+  glitchtip-postgres:
+    image: postgres:18-alpine
+    container_name: glitchtip-postgres
+    restart: unless-stopped
+    profiles: [ "monitoring", "all" ]
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - $DOCKERDIR/appdata/glitchtip-postgres:/var/lib/postgresql
+    environment:
+      TZ: $TZ
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_POSTGRES_PASSWORD:?à définir sur le serveur}
+      POSTGRES_DB: glitchtip
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U glitchtip -d glitchtip" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # GlitchTip - Error tracking (Sentry-compatible) and uptime monitoring, shared by all apps
+  # One organization per app (Lucko, ...), one project per api/web/app; DSNs go in each app's env.
+  # No Valkey: task queue and cache in Postgres, worker embedded (SERVER_ROLE=all_in_one).
+  glitchtip:
+    image: glitchtip/glitchtip:6
+    container_name: glitchtip
+    restart: unless-stopped
+    profiles: [ "monitoring", "all" ]
+    networks:
+      - proxy
+    depends_on:
+      glitchtip-postgres:
+        condition: service_healthy
+    volumes:
+      - $DOCKERDIR/appdata/glitchtip-uploads:/code/uploads
+    environment:
+      TZ: $TZ
+      SERVER_ROLE: all_in_one
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_POSTGRES_PASSWORD:?à définir sur le serveur}@glitchtip-postgres:5432/glitchtip
+      VALKEY_URL: ""
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:?à définir sur le serveur}
+      GLITCHTIP_DOMAIN: https://glitchtip.$DOMAIN_NAME
+      EMAIL_URL: ${GLITCHTIP_EMAIL_URL:-consolemail://}
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-glitchtip@$DOMAIN_NAME}
+      # Self-signup closed after the first account (admin); others are invited
+      ENABLE_USER_REGISTRATION: "False"
+      # Errors and uptime checks kept 30 days (GDPR: no longer than needed)
+      GLITCHTIP_RETENTION_DAYS: "30"
+      GLITCHTIP_ENABLE_LOGS: "False"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.glitchtip-rtr.entrypoints=websecure"
+      - "traefik.http.routers.glitchtip-rtr.rule=Host(`glitchtip.$DOMAIN_NAME`)"
+      - "traefik.http.routers.glitchtip-rtr.tls=true"
+      ## Middlewares (GlitchTip answers the SDKs' CORS preflight itself)
+      - "traefik.http.routers.glitchtip-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.glitchtip-rtr.service=glitchtip-svc"
+      - "traefik.http.services.glitchtip-svc.loadbalancer.server.port=8000"
+
   ############################# DOCUMENTATION
 
   # Docmost Postgres - Database for Docmost
