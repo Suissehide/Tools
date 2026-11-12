@@ -52,7 +52,7 @@ providers:
 certificatesResolvers:
   ovh:
     acme:
-      email: ${OVH_EMAIL}
+      email: you@example.com # replace in the real traefik.yml (not committed): Traefik does not expand ${VARS} here
       storage: /letsencrypt/acme.json
       # caServer: https://acme-staging-v02.api.letsencrypt.org/directory # Uncomment for testing
       dnsChallenge:
@@ -61,7 +61,7 @@ certificatesResolvers:
           - "213.186.33.99:53" # OVH DNS resolver
   letsencrypt: # Alias used by Dokploy — same config as ovh
     acme:
-      email: ${OVH_EMAIL}
+      email: you@example.com # replace in the real traefik.yml (not committed): Traefik does not expand ${VARS} here
       storage: /letsencrypt/acme.json
       dnsChallenge:
         provider: ovh

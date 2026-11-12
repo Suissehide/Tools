@@ -3,3 +3,6 @@
 
 .env.local
 graphify-out/
+
+# Real Traefik static config (contains personal data); template: traefik.yml.example
+appdata/traefik/config/traefik.yml
