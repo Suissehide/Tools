@@ -203,7 +203,7 @@ services:
   # Not started by default: enable with --profile auth once ready.
   # 1. Create OAuth credentials in Google Cloud Console, redirect URI: https://oauth.$DOMAIN_NAME/_oauth
   # 2. Fill $DOCKERDIR/secrets/traefik_forward_auth (providers.google.client-id / client-secret, secret, whitelist=<email>)
-  #    (template in this repo: secrets/traefik_forward_auth; keep the real file out of git)
+  #    (template: secrets/traefik_forward_auth.example; the real file is gitignored)
   # 3. docker compose --env-file .env.local --profile auth up -d oauth
   oauth:
     container_name: oauth

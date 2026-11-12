@@ -6,3 +6,18 @@ graphify-out/
 
 # Real Traefik static config (contains personal data); template: traefik.yml.example
 appdata/traefik/config/traefik.yml
+
+# Runtime data written by the containers ($DOCKERDIR = this repo on the server)
+/letsencrypt/
+/logs/
+/jellyfin/
+/transmission-vpn/
+/appdata/*
+!/appdata/traefik/
+!/appdata/couchdb/
+/appdata/couchdb/*
+!/appdata/couchdb/config/
+
+# Real secrets stay on the server; only *.example templates are committed
+/secrets/*
+!/secrets/*.example
