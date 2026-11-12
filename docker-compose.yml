@@ -251,6 +251,7 @@ services:
       DATABASE_URL: postgresql://dokploy:$DOKPLOY_POSTGRES_PASSWORD@dokploy-postgres:5432/dokploy
       REDIS_URL: redis://dokploy-redis:6379
       DOKPLOY_TRAEFIK_ENABLED: "false"
+      BETTER_AUTH_SECRET: $DOKPLOY_BETTER_AUTH_SECRET
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
