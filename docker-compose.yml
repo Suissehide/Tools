@@ -1,4 +1,7 @@
 ######### IMPORTANT #############
+# Real values live in .env.local on the server (.env is only a committed template).
+# Always run: docker compose --env-file .env.local --profile <profile> ...
+# (or export COMPOSE_ENV_FILES=.env.local in the shell profile)
 # This is my main docker-compose file with most of the apps. I run docker on other systems with smaller stacks (web and synology).
 # You can copy-paste services from one docker-compose file in this repo to another to add other apps.
 
@@ -61,7 +64,7 @@ services:
   # touch $DOCKERDIR/logs/cloudserver/traefik.log
   traefik:
     container_name: traefik
-    image: "traefik:latest"
+    image: "traefik:v3" # pinned major: v4 will bring breaking changes
     restart: unless-stopped
     profiles: [ "core", "all" ]
     security_opt:
@@ -98,14 +101,14 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - $DOCKERDIR/appdata/traefik/config:/config:ro
+      - ${DOCKERDIR:?set DOCKERDIR in .env.local (use --env-file .env.local)}/appdata/traefik/config:/config:ro
       - $DOCKERDIR/appdata/traefik/rules:/rules:ro
       - $DOCKERDIR/letsencrypt:/letsencrypt
       - $DOCKERDIR/logs/traefik:/logs # for fail2ban or crowdsec
     environment:
       TZ: $TZ
       HTPASSWD_FILE: /run/secrets/htpasswd # HTPASSWD_FILE can be whatever as it is not used/called anywhere.
-      DOMAIN_NAME: $DOMAIN_NAME # Passing the domain name to traefik container to be able to use the variable in rules.
+      DOMAIN_NAME: ${DOMAIN_NAME:?set DOMAIN_NAME in .env.local (use --env-file .env.local)} # Passing the domain name to traefik container to be able to use the variable in rules.
       OVH_ENDPOINT: $OVH_ENDPOINT
       OVH_APPLICATION_KEY: $OVH_APPLICATION_KEY
       OVH_APPLICATION_SECRET: $OVH_APPLICATION_SECRET
@@ -116,11 +119,7 @@ services:
     labels:
       # - "autoheal=true"
       - "traefik.enable=true"
-      # HTTP-to-HTTPS Redirect
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # HTTP-to-HTTPS redirect is handled by the "web" entrypoint in traefik.yml
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAIN_NAME`)"
@@ -197,8 +196,48 @@ services:
       - crowdsec
     environment:
       TZ: $TZ
-      CROWDSEC_BOUNCER_API_KEY: $CROWDSEC_BOUNCER_API_KEY
+      CROWDSEC_BOUNCER_API_KEY: ${CROWDSEC_BOUNCER_API_KEY:?à définir sur le serveur}
       CROWDSEC_AGENT_HOST: crowdsec:8080
+
+  # OAuth - Google login in front of services using chain-oauth@file (Traefik Forward Auth)
+  # Not started by default: enable with --profile auth once ready.
+  # 1. Create OAuth credentials in Google Cloud Console, redirect URI: https://oauth.$DOMAIN_NAME/_oauth
+  # 2. Fill $DOCKERDIR/secrets/traefik_forward_auth (providers.google.client-id / client-secret, secret, whitelist=<email>)
+  #    (template in this repo: secrets/traefik_forward_auth; keep the real file out of git)
+  # 3. docker compose --env-file .env.local --profile auth up -d oauth
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:2
+    restart: unless-stopped
+    profiles: [ "auth", "all" ]
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      CONFIG: /run/secrets/traefik_forward_auth
+      COOKIE_DOMAIN: $DOMAIN_NAME
+      INSECURE_COOKIE: "false"
+      AUTH_HOST: oauth.$DOMAIN_NAME
+      URL_PATH: /_oauth
+      LOG_LEVEL: warn
+      LOG_FORMAT: text
+      LIFETIME: "86400" # 1 day
+      DEFAULT_ACTION: auth
+      DEFAULT_PROVIDER: google
+    secrets:
+      - traefik_forward_auth
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.oauth-rtr.entrypoints=websecure"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAIN_NAME`)"
+      - "traefik.http.routers.oauth-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"
 
   # Portainer - WebUI for Containers
   portainer:
@@ -239,8 +278,10 @@ services:
     networks:
       - proxy
     depends_on:
-      - dokploy-postgres
-      - dokploy-redis
+      dokploy-postgres:
+        condition: service_healthy
+      dokploy-redis:
+        condition: service_started
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -248,10 +289,10 @@ services:
       - /etc/dokploy:/etc/dokploy
     environment:
       TZ: $TZ
-      DATABASE_URL: postgresql://dokploy:$DOKPLOY_POSTGRES_PASSWORD@dokploy-postgres:5432/dokploy
+      DATABASE_URL: postgresql://dokploy:${DOKPLOY_POSTGRES_PASSWORD:?à définir sur le serveur}@dokploy-postgres:5432/dokploy
       REDIS_URL: redis://dokploy-redis:6379
       DOKPLOY_TRAEFIK_ENABLED: "false"
-      BETTER_AUTH_SECRET: $DOKPLOY_BETTER_AUTH_SECRET
+      BETTER_AUTH_SECRET: ${DOKPLOY_BETTER_AUTH_SECRET:?à définir sur le serveur}
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
@@ -292,8 +333,13 @@ services:
     environment:
       TZ: $TZ
       POSTGRES_USER: dokploy
-      POSTGRES_PASSWORD: $DOKPLOY_POSTGRES_PASSWORD
+      POSTGRES_PASSWORD: ${DOKPLOY_POSTGRES_PASSWORD:?à définir sur le serveur} # only read on first init of the volume
       POSTGRES_DB: dokploy
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dokploy -d dokploy" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   ############################# FRONTENDS
 
@@ -324,7 +370,7 @@ services:
 
   # Homepage - Application Dashboard
   homepage:
-    image: ghcr.io/benphelps/homepage:latest
+    image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
     profiles: [ "apps", "all" ]
@@ -338,6 +384,7 @@ services:
       TZ: $TZ
       PUID: $PUID
       PGID: $PGID
+      HOMEPAGE_ALLOWED_HOSTS: $DOMAIN_NAME,www.$DOMAIN_NAME
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
@@ -521,8 +568,8 @@ services:
       - /dev/dri:/dev/dri # for harware transcoding
     security_opt:
       - no-new-privileges:true
-    ports:
-      - "8920:8920"
+    # ports: # served through Traefik; a published port bypasses ufw
+    #   - "8920:8920"
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -555,8 +602,8 @@ services:
     profiles: ["apps", "all"]
     networks:
       - proxy
-    ports:
-      - "3000:3000"
+    # ports: # served through Traefik; a published port bypasses ufw
+    #   - "3000:3000"
     user: $PUID
     volumes:
       - $DOCKERDIR/appdata/grafana:/var/lib/grafana
@@ -814,8 +861,8 @@ services:
         # ipv4_address: 192.168.90.90
     # security_opt:
     #   - no-new-privileges:true
-    ports:
-      - "9091:9091"
+    # ports: # served through Traefik; a published port bypasses ufw
+    #   - "9091:9091"
     cap_add:
       - NET_ADMIN
     devices:
@@ -894,9 +941,8 @@ services:
       FORCE_CONTAINER_REMOVAL: 0
       GRACE_PERIOD_SECONDS: 604800
       DRY_RUN: 0
-      CLEAN_UP_VOLUMES: 1
+      CLEAN_UP_VOLUMES: 0 # 1 would delete unused named volumes, including Dokploy app data
       TZ: $TZ
-      DOCKER_HOST: tcp://socket-proxy:2375
 
   # WhoAmI - For Testing and Troubleshooting
   whoami:
